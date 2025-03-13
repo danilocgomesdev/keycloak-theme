@@ -64,12 +64,12 @@
   
   @layer components {
     .link-style {
-      @apply underline underline-offset-4 font-semibold text-lg;
+      @apply underline underline-offset-4 font-semibold text-sm;
     }
   }
   @layer components {
     .input-error {
-      @apply text-lg mt-2 text-red-500 font-bold py-0.5 px-1 ;
+      @apply text-sm mt-2 text-red-500 font-bold py-0.5 px-1 ;
     }
   }
 

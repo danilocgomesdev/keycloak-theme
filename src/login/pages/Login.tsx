@@ -1,5 +1,4 @@
-import { useState, useEffect, useReducer } from "react";
-import { assert } from "keycloakify/tools/assert";
+import { useEffect, useState } from "react";
 import { clsx } from "keycloakify/tools/clsx";
 import type { PageProps } from "keycloakify/login/pages/PageProps";
 import { getKcClsx, type KcClsx } from "keycloakify/login/lib/kcClsx";
@@ -9,7 +8,8 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { checkboxVariants } from "../../components/ui/checkbox";
-
+import Logo from "../../assets/logo.png";
+import Logodark from "../../assets/logo-dark.png";
 import { Separator } from "../../components/ui/separator";
 import { PasswordWrapper } from "../../components/ui/PasswordWrapper";
 import SocialProviders from "../../components/ui/SocialProviders";
@@ -27,6 +27,24 @@ export default function Login(props: PageProps<Extract<KcContext, { pageId: "log
 
     const [isLoginButtonDisabled, setIsLoginButtonDisabled] = useState(false);
 
+    const [logoSrc, setLogoSrc] = useState(
+        window.matchMedia("(prefers-color-scheme: dark)").matches ? Logodark : Logo
+      );
+      useEffect(() => {
+        const updateLogo = () => {
+          setLogoSrc(document.documentElement.classList.contains("dark") ? Logodark : Logo);
+        };
+      
+        // Atualiza quando o componente monta
+        updateLogo();
+      
+        // Cria um observer para monitorar mudanças na classe "dark"
+        const observer = new MutationObserver(updateLogo);
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+      
+        return () => observer.disconnect();
+      }, []);
+      
     return (
         <Template
             kcContext={kcContext}
@@ -34,11 +52,16 @@ export default function Login(props: PageProps<Extract<KcContext, { pageId: "log
             doUseDefaultCss={doUseDefaultCss}
             classes={classes}
             displayMessage={!messagesPerField.existsError("username", "password")}
-            headerNode={msg("loginAccountTitle")}
+            headerNode={
+                <div className="flex flex-col items-center">
+                    <img src={logoSrc} alt="Logo" width={128} height={64} className="mb-4" />
+                    <h1 className="text-lg font-bold">{msg("loginAccountTitle")}</h1>
+                </div>
+            }
             displayInfo={realm.password && realm.registrationAllowed && !registrationDisabled}
             infoNode={
                 <div id="kc-registration" className="">
-                    <span className="text-foreground text-xl">
+                    <span className="text-foreground text-lg">
                         {msgStr("noAccount")}{" "}
                         <a tabIndex={8} href={url.registrationUrl} className="mx-5 link-style ">
                             {msgStr("doRegister")}
@@ -63,7 +86,7 @@ export default function Login(props: PageProps<Extract<KcContext, { pageId: "log
                         >
                             {!usernameHidden && (
                                 <div>
-                                    <Label htmlFor="username" className="text-lg">
+                                    <Label htmlFor="username" className="text-base">
                                         {!realm.loginWithEmailAllowed
                                             ? msg("username")
                                             : !realm.registrationEmailAsUsername
@@ -95,7 +118,7 @@ export default function Login(props: PageProps<Extract<KcContext, { pageId: "log
                             )}
 
                             <div>
-                                <Label htmlFor="password" className="text-lg">
+                                <Label htmlFor="password" className="text-base">
                                     {msg("password")}
                                 </Label>
                                 <PasswordWrapper kcClsx={kcClsx} i18n={i18n} passwordInputId="password">
@@ -121,7 +144,7 @@ export default function Login(props: PageProps<Extract<KcContext, { pageId: "log
                                 )}
                             </div>
 
-                            <div className="space-y-2 md:space-y-0 md:flex md:justify-between text-lg ">
+                            <div className="space-y-2 md:space-y-0 md:flex md:justify-between text-base ">
                                 <div>
                                     {realm.rememberMe && !usernameHidden && (
                                         <div className="flex items-center space-x-2 ">
